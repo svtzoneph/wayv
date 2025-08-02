@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RANDOM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(255,0,0,0.4));
+      backdrop-filter: blur(8px);
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px red;
+      width: 90%;
+      max-width: 400px;
+      margin: 20px;
+    }
+
+    input, button {
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: red;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: darkred;
+    }
+
+    .videos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 30px 10px;
+      width: 100%;
+    }
+
+    .video-wrapper {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .video-wrapper {
+        flex: 1 1 45%;
+        max-width: 45%;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+    
+    .video-title {
+  margin-bottom: 10px;
+  font-size: 18px;
+  text-align: center;
+  color: #fff;
+  text-shadow: 1px 1px 4px #000;
+}
+  </style>
+</head>
+<body>
+  <div class="container" id="joinContainer">
+    <h2>Enter Your Name to Join</h2>
+    <input type="text" id="nameInput" placeholder="Your Name" />
+    <button onclick="requestJoin()">Request to Join</button>
+  </div>
+
+<div class="videos hidden" id="videoContainer">
+  <div class="video-wrapper">
+    <video id="video1" controls></video>
+    <h3 class="video-title">2025 WayV CONCERT TOUR 'NO Way OUT' IN SEOUL DAY 1</h3>
+  </div>
+  <div class="video-wrapper">
+    <video id="video2" controls></video>
+    <h3 class="video-title">2025 WayV CONCERT TOUR 'NO Way OUT' IN SEOUL Day 2</h3>
+  </div>
+</div>
+
+<!-- Include libraries -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+
+<script>
+  // Video sources
+  const videoSources = {
+    video1: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/bfc1qmodhyqx6v5a/index.m3u8",
+    video2: "ttps://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/bfc1qmodhyqx6v5a/index.m3u8"
+  };
+
+  // Load each video with hls.js and apply Plyr
+  Object.entries(videoSources).forEach(([id, src]) => {
+    const video = document.getElementById(id);
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(src);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        new Plyr(video);
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = src;
+      new Plyr(video);
+    }
+  });
+</script>
+
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_JKmPRKfg5eLTI0C2VTY4WuXiUDaJarA",
+      authDomain: "fromisteen-80f30.firebaseapp.com",
+      databaseURL: "https://fromisteen-80f30-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "fromisteen-80f30",
+      storageBucket: "fromisteen-80f30.appspot.com",
+      messagingSenderId: "758865985892",
+      appId: "1:758865985892:web:9980747c05c2e2fa4bba71",
+      measurementId: "G-8CXK3GDNYD"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const joinContainer = document.getElementById('joinContainer');
+    const videoContainer = document.getElementById('videoContainer');
+    const nameInput = document.getElementById('nameInput');
+
+    const userId = localStorage.getItem('userId');
+
+    if (userId) {
+      db.ref('requests/' + userId).once('value', snap => {
+        if (snap.exists() && snap.val().status === 'approved') {
+          showVideos();
+        }
+      });
+    }
+
+    function requestJoin() {
+      const name = nameInput.value.trim();
+      if (!name) return alert('Please enter your name');
+
+      const newRef = db.ref('requests').push();
+      newRef.set({
+        name: name,
+        status: 'pending'
+      });
+
+      localStorage.setItem('userId', newRef.key);
+      alert('Request sent! Please wait for approval.');
+    }
+
+    function showVideos() {
+      joinContainer.classList.add('hidden');
+      videoContainer.classList.remove('hidden');
+      new Plyr('#video1');
+      new Plyr('#video2');
+    }
+
+    setInterval(() => {
+      const id = localStorage.getItem('userId');
+      if (id) {
+        db.ref('requests/' + id).once('value', snap => {
+          if (snap.exists() && snap.val().status === 'approved') {
+            showVideos();
+          }
+        });
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
