@@ -90,6 +90,22 @@
   color: #fff;
   text-shadow: 1px 1px 4px #000;
 }
+
+.download-btn {
+  font-weight: bold;
+  padding: 6px 10px;
+  font-size: 14px;
+  width: auto;
+  display: inline-block;
+  margin-top: 5px;
+  background-color: white;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.download-btn:hover {
+  background-color: darkred;
+}
   </style>
 </head>
 <body>
@@ -103,10 +119,16 @@
   <div class="video-wrapper">
     <video id="video1" controls></video>
     <h3 class="video-title">2025 WayV CONCERT TOUR 'NO Way OUT' IN SEOUL DAY 1</h3>
+<a id="download1" href="#" class="download-btn" download>
+  Download ⬇
+</a>
   </div>
   <div class="video-wrapper">
     <video id="video2" controls></video>
     <h3 class="video-title">2025 WayV CONCERT TOUR 'NO Way OUT' IN SEOUL Day 2</h3>
+<a id="download2" href="#" class="download-btn" download>
+  Download ⬇
+</a>
   </div>
 </div>
 
@@ -118,7 +140,7 @@
   // Video sources
   const videoSources = {
     video1: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/bfc1qmodhyqx6v5a/index.m3u8",
-    video2: "ttps://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/bfc1qmodhyqx6v5a/index.m3u8"
+    video2: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/7a314zpyv9qab14c/index.m3u8"
   };
 
   // Load each video with hls.js and apply Plyr
